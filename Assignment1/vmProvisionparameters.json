@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+		"storageAccountName1": {
+            "value": "stg1arun"
+        },
+		"storageAccountName2": {
+            "value": "stg2arun"
+        },
+		"storageAccountName3": {
+            "value": "stg3arun"
+        },
+        "networkInterfaceName1": {
+            "value": "myNic1"
+        },
+		"networkInterfaceName2": {
+            "value": "myNic2"
+        },
+        "enableAcceleratedNetworking": {
+            "value": true
+        },
+        "networkSecurityGroupName": {
+            "value": "myVMnsg"
+        },
+        "networkSecurityGroupRules": {
+            "value": []
+        },
+        "subnetName1": {
+            "value": "mySubnetA"
+        },
+		"subnetName2": {
+            "value": "mySubnetB"
+        },
+		"virtualNetworkName": {
+            "value": "myVnet"
+        },
+        "publicIpAddressName1": {
+            "value": "myVM-ip1"
+        },
+		"publicIpAddressName2": {
+            "value": "myVM-ip2"
+        },
+        "publicIpAddressType": {
+            "value": "Dynamic"
+        },
+        "publicIpAddressSku": {
+            "value": "Basic"
+        },
+        "virtualMachineName": {
+            "value": "myVM"
+        },
+        "virtualMachineRG": {
+            "value": "myResourceGroup"
+        },
+        "osDiskType": {
+            "value": "Standard_LRS"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_DS2_v2"
+        },
+        "adminUsername": {
+            "value": "Admin123"
+        },
+        "adminPassword": {
+            "value": "Admin1234567"
+        }
+    }
+}
