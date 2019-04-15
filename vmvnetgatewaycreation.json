@@ -1,0 +1,780 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "publicIPAddresses_appgateway_ip_domainNameLabel": {
+      "defaultValue": null,
+      "type": "SecureString"
+    },
+    "virtualMachines_ADserver_name": {
+      "defaultValue": "ADserver",
+      "type": "String"
+    },
+    "virtualNetworks_vnettest_name": {
+      "defaultValue": "vnettest",
+      "type": "String"
+    },
+    "virtualMachines_Jumpserver_name": {
+      "defaultValue": "Jumpserver",
+      "type": "String"
+    },
+    "virtualMachines_Toolsserver_name": {
+      "defaultValue": "Toolsserver",
+      "type": "String"
+    },
+    "networkInterfaces_adserver_name": {
+      "defaultValue": "adserver",
+      "type": "String"
+    },
+    "publicIPAddresses_ADserver_ip_name": {
+      "defaultValue": "ADserver-ip",
+      "type": "String"
+    },
+    "applicationGateways_appgateway_name": {
+      "defaultValue": "appgateway",
+      "type": "String"
+    },
+    "networkInterfaces_jumpserver_name": {
+      "defaultValue": "jumpserver",
+      "type": "String"
+    },
+    "publicIPAddresses_appgateway_ip_name": {
+      "defaultValue": "appgateway-ip",
+      "type": "String"
+    },
+    "publicIPAddresses_Jumpserver_ip_name": {
+      "defaultValue": "Jumpserver-ip",
+      "type": "String"
+    },
+    "networkInterfaces_toolsserver_name": {
+      "defaultValue": "toolsserver",
+      "type": "String"
+    },
+    "publicIPAddresses_Toolsserver_ip_name": {
+      "defaultValue": "Toolsserver-ip",
+      "type": "String"
+    },
+    "networkSecurityGroups_ADserver_nsg_name": {
+      "defaultValue": "ADserver-nsg",
+      "type": "String"
+    },
+    "storageAccount": {
+      "defaultValue": "mystorageaccount",
+      "type": "String"
+    },
+    "networkSecurityGroups_Jumpserver_nsg_name": {
+      "defaultValue": "Jumpserver-nsg",
+      "type": "String"
+    },
+    "networkSecurityGroups_Toolsserver_nsg_name": {
+      "defaultValue": "Toolsserver-nsg",
+      "type": "String"
+    },
+    "subnets_APPGW_name": {
+      "defaultValue": "APPGW",
+      "type": "String"
+    },
+    "subnets_ADsubnet_name": {
+      "defaultValue": "ADsubnet",
+      "type": "String"
+    },
+    "subnets_Jumpsubnet_name": {
+      "defaultValue": "Jumpsubnet",
+      "type": "String"
+    },
+    "subnets_Toolssubnet_name": {
+      "defaultValue": "Toolssubnet",
+      "type": "String"
+    },
+    "Toolsdisk": {
+      "defaultValue": "Toolsdisk",
+      "type": "String"
+    },
+    "ADdisk": {
+      "defaultValue": "ADdisk",
+      "type": "String"
+    },
+    "Jumpdisk": {
+      "defaultValue": "Jumpdisk",
+      "type": "String"
+    }
+  },
+  "variables": {
+    "applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_appgateway_name'))]"
+  },
+    "resources": [
+        {
+            "type": "Microsoft.Compute/disks",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "name": "[parameters('ADdisk')]",
+            "apiVersion": "2018-06-01",
+            "location": "eastasia",
+          "properties": {
+            "osType": "Windows",
+            "creationData": {
+              "createOption": "FromImage",
+              "imageReference": {
+                "id": "[resourceId('Microsoft.Compute/virtualMachines', parameters('ADdisk'))]"
+              }
+            }
+          }
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "name": "[parameters('Jumpdisk')]",
+            "apiVersion": "2018-06-01",
+            "location": "eastasia",
+          "properties": {
+            "osType": "Windows",
+            "creationData": {
+              "createOption": "FromImage",
+              "imageReference": {
+                "id": "[resourceId('Microsoft.Compute/virtualMachines', parameters('Jumpdisk'))]"
+              }
+            }
+          }
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "name": "[parameters('Toolsdisk')]",
+            "apiVersion": "2018-06-01",
+            "location": "eastasia",
+          "properties": {
+            "osType": "Windows",
+            "creationData": {
+              "createOption": "FromImage",
+              "imageReference": {
+                "id": "[resourceId('Microsoft.Compute/virtualMachines', parameters('Toolsdisk'))]"
+              }
+            }
+          }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_ADserver_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastasia",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS1_v2"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2012-R2-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_ADserver_name'),'_OsDisk_1')]",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"
+                        }
+                    }
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_ADserver_name')]",
+                    "adminUsername": "azureuser",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_adserver_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('https', '://', parameters('storageAccount'), '.blob.core.windows.net', '/')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_adserver_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_Jumpserver_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastasia",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS1_v2"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2012-R2-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_Jumpserver_name'),'_OsDisk_1')]",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"
+                       
+                        }
+                    }
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_Jumpserver_name')]",
+                    "adminUsername": "azureuser",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_jumpserver_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('https', '://', parameters('storageAccount'), '.blob.core.windows.net', '/')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_jumpserver_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_Toolsserver_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastasia",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS1_v2"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2012-R2-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_Toolsserver_name'),'_OsDisk_1')]",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"
+                          
+                        }
+                    }
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_Toolsserver_name')]",
+                    "adminUsername": "azureuser",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_toolsserver_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('https', '://', parameters('storageAccount'), '.blob.core.windows.net', '/')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_toolsserver_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/applicationGateways",
+            "name": "[parameters('applicationGateways_appgateway_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+              "properties": {
+                "sku": {
+                  "capacity": 2,
+                  "name": "WAF_Medium",
+                  "tier": "WAF"
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_appgateway_name'),'appGatewayIpConfig')]",
+                         "properties": {
+                           
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_APPGW_name'))]"
+                            }
+                        },
+                        "type": "Microsoft.Network/applicationGateways/gatewayIPConfigurations"
+                    }
+                ],
+     
+                "frontendIPConfigurations": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_appgateway_name'),'appGatewayFrontendIP')]",
+                        "type": "Microsoft.Network/applicationGateways/frontendIPConfigurations",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_appgateway_ip_name'))]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_appgateway_name'),'appGatewayFrontendPort')]",
+                          "properties": {
+                            "port": 80
+                        },
+                        "type": "Microsoft.Network/applicationGateways/frontendPorts"
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_appgateway_name'),'appGatewayBackendPool')]",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "backendAddresses": [
+                                {
+                                    "fqdn": "assignment1appnew12.azurewebsites.net"
+                                }
+                            ]
+                        },
+                        "type": "Microsoft.Network/applicationGateways/backendAddressPools"
+                    }
+                ],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_appgateway_name'),'appGatewayBackendHttpSettings')]",
+                        "properties": {
+                            "port": 80,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": true,
+                            "requestTimeout": 30
+                           },
+                        "type": "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
+                    }
+                ],
+                "httpListeners": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_appgateway_name'),'appGatewayHttpListener')]",
+                        "properties": {
+                           "frontendIPConfiguration": {
+                                "id": "[variables('applicationGatewayID')]"
+                            },
+                            "frontendPort": {
+                                "id": "[variables('applicationGatewayID')]"
+                            },
+                            "protocol": "Http",
+                            "requireServerNameIndication": false
+                        },
+                        "type": "Microsoft.Network/applicationGateways/httpListeners"
+                    }
+                ],
+                
+                "requestRoutingRules": [
+                    {
+                        "name": "rule1",
+                        
+                        "properties": {
+                            
+                            "ruleType": "Basic",
+                            "httpListener": {
+                                "id": "[variables('applicationGatewayID')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[variables('applicationGatewayID')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[variables('applicationGatewayID')]"
+                            }
+                        },
+                        "type": "Microsoft.Network/applicationGateways/requestRoutingRules"
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_appgateway_name'),'appGatewayBackendHttpSetting')]",
+                        
+                        "properties": {
+                            "protocol": "Http",
+                            "path": "/",
+                            "interval": 30,
+                            "timeout": 30,
+                            "unhealthyThreshold": 3,
+                            "pickHostNameFromBackendHttpSettings": true,
+                            "minServers": 0
+                        },
+                        "type": "Microsoft.Network/applicationGateways/probes"
+                    }
+                ],
+                 "webApplicationFirewallConfiguration": {
+                    "enabled": true,
+                    "firewallMode": "Prevention",
+                    "ruleSetType": "OWASP",
+                    "ruleSetVersion": "3.0",
+                    "disabledRuleGroups": [],
+                    "exclusions": [],
+                    "requestBodyCheck": true,
+                    "maxRequestBodySizeInKb": 128,
+                    "fileUploadLimitInMb": 100
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_APPGW_name'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_appgateway_ip_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_adserver_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+            "properties": {
+                
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ADserver_ip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_ADsubnet_name'))]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ADserver_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_ADsubnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_ADserver_nsg_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_jumpserver_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+             "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                            "properties": {
+                             "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Jumpserver_ip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_Jumpsubnet_name'))]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Jumpserver_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_Jumpsubnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Jumpserver_nsg_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_toolsserver_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+              "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                            "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Toolsserver_ip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_Toolssubnet_name'))]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Toolsserver_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnettest_name'), parameters('subnets_Toolssubnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Toolsserver_nsg_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_ADserver_nsg_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+             "properties": {
+                "securityRules": [
+           {
+            "name": "Block_Internet_Onbound",
+            "properties": {
+              "description": "Block Internet",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 101,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "Block_Internet_Outbound",
+            "properties": {
+              "description": "Block Internet",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "Internet",
+              "access": "Deny",
+              "priority": 200,
+              "direction": "Outbound"
+            },
+            {
+              "name": "Allow_ToolsserverAccess",
+              "properties": {
+                "description": "Allow RDP",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "10.0.1.0/24",
+                "destinationAddressPrefix": "10.0.2.0/24",
+                "access": "Allow",
+                "priority": 103,
+                "direction": "Outbound"
+              }
+            }
+          }
+        ]
+      }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_Jumpserver_nsg_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+            "tags": {},
+            "scale": null,
+            "properties": {
+        "securityRules": [
+          {
+            "name": "rdp_rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "10.0.0.0/24",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            },
+            {
+              "name": "Allow_ADserverAccess",
+              "properties": {
+                "description": "Allow RDP",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "10.0.0.0/24",
+                "destinationAddressPrefix": "10.0.1.0/24",
+                "access": "Allow",
+                "priority": 107,
+                "direction": "Outbound"
+              }
+            }
+          }
+        ]
+      }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_Toolsserver_nsg_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia"
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_ADserver_ip_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_appgateway_ip_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                      "domainNameLabel": "[parameters('publicIPAddresses_appgateway_ip_domainNameLabel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_Jumpserver_ip_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+               "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4
+               }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_Toolsserver_ip_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+               
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworks_vnettest_name')]",
+            "apiVersion": "2018-12-01",
+            "location": "eastasia",
+             "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "APPGW",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "addressPrefix": "10.0.3.0/24"
+                        }
+                    },
+                    {
+                        "name": "Jumpsubnet",
+                            "properties": {
+                            "provisioningState": "Succeeded",
+                            "addressPrefix": "10.0.0.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Jumpserver_nsg_name'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ADsubnet",
+                            "properties": {
+                            "provisioningState": "Succeeded",
+                            "addressPrefix": "10.0.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_ADserver_nsg_name'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Toolssubnet",
+                            "properties": {
+                            "provisioningState": "Succeeded",
+                            "addressPrefix": "10.0.2.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Toolsserver_nsg_name'))]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Jumpserver_nsg_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_ADserver_nsg_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Toolsserver_nsg_name'))]"
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[parameters('storageAccount')]",
+            "apiVersion": "2018-07-01",
+            "location": "eastasia",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                     "defaultAction": "Allow"
+                 }
+        }
+}
