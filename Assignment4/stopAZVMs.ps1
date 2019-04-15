@@ -1,6 +1,6 @@
 ﻿############################################################################## 
 ## Stop Azure VM already running
-## Arunendra Chauhan 
+## Vivek Mishra
 
 
 $RG = 'myResourceGroup'
