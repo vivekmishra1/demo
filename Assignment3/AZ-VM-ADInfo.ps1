@@ -1,6 +1,6 @@
 ﻿############################################################################## 
 ## Info from Azure AD Servers   
-## Arunendra Chauhan
+## Vivek Mishra
 
 Clear-Host
 $Computers = Get-ADComputer -Filter * -Properties * | Select Name
