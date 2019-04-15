@@ -1,7 +1,6 @@
 ﻿############################################################################## 
 ## Azure VMs log 
-## Arunendra Chauhan 
-
+## Vivek Mishra
 $RGName = "myResourceGroup"
 $SubscritionID = (Get-AzSubscription).Id
 $ProviderName = "Microsoft.Compute/virtualMachines"
