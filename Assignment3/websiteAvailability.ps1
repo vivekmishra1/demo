@@ -1,7 +1,6 @@
 ﻿############################################################################## 
 ## Website Availability Monitoring 
-## Arunendra Chauhan 
-
+## Vivek Mishra
 
 FUNCTION website {
  
