@@ -1,6 +1,6 @@
 ﻿############################################################################## 
 ## Create Snapshot of a vm under a resourcegroup
-## Arunendra Chauhan 
+## Vivek Mishra
 
 # All resource groups
 $RG_All = Write-Host ((Get-AzResourceGroup).ResourceGroupName)
