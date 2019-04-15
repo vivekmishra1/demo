@@ -1,7 +1,7 @@
 ﻿## Script to stop firewall for all VMs 
 ## In this script first a VM will get created with firewall enabled
 # Later FW disabled and Again enabled
-## Arunendra Chauhan
+## Vivek Mishra
 
 #Login-AzAccount
 #ResourceGroup name and location
