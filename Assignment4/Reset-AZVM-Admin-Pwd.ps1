@@ -1,6 +1,6 @@
 ﻿############################################################################## 
 ## Reset Azure VM Admin Password   
-## Arunendra Chauhan
+## Vivek Mishra
 
 # Define Variables
 
